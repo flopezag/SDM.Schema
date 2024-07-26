@@ -117,20 +117,28 @@ class SDMDescriptionFile:
         official_data_model = \
             [x for x in self.official_list_data_models_data['officialList'] if entity_name in x['dataModels']]
 
-        entity_repo_link = official_data_model[0]['repoLink']
-        entity_repo_link = entity_repo_link.replace('.git', '')
-        entity_repo_link = join(entity_repo_link, 'tree', 'master', entity_name)
+        response = list()
 
-        entity_yaml_link = data_model_metadata[0]['yamlUrl']
-        entity_jsonschema_url = data_model_metadata[0]['jsonSchemaUrl']
+        if len(official_data_model) == 0:
+            raise KeyError(f'No Data Models found for entity {entity_name}')
+        else:
+            for i in range(len(official_data_model)):
+                entity_repo_link = official_data_model[i]['repoLink']
+                entity_repo_link = entity_repo_link.replace('.git', '')
+                entity_repo_link = join(entity_repo_link, 'tree', 'master', entity_name)
 
-        response = {
-            'repo': entity_repo_link,
-            'yaml': entity_yaml_link,
-            'jsonSchema': entity_jsonschema_url
-        }
+                entity_yaml_link = data_model_metadata[i]['yamlUrl']
+                entity_jsonschema_url = data_model_metadata[i]['jsonSchemaUrl']
 
-        return response
+                resp = {
+                    'repo': entity_repo_link,
+                    'yaml': entity_yaml_link,
+                    'jsonSchema': entity_jsonschema_url
+                }
+
+                response.append(resp)
+
+            return response
 
     def stop(self):
         """
@@ -141,8 +149,28 @@ class SDMDescriptionFile:
 
 if __name__ == '__main__':
     sdm_links = SDMDescriptionFile()
+    response = sdm_links.get_data(entity_name='Vehicle')
+
+    for i in range(len(response)):
+        print(f"Repository link: {response[i]['repo']}")
+        print(f"Yaml link: {response[i]['yaml']}")
+        print(f"JSONSchema link: {response[i]['jsonSchema']}")
+        print()
+
     response = sdm_links.get_data(entity_name='WeatherObserved')
 
-    print(f"Repository link: {response['repo']}")
-    print(f"Yaml link: {response['yaml']}")
-    print(f"JSONSchema link: {response['jsonSchema']}")
+    for i in range(len(response)):
+        print(f"Repository link: {response[i]['repo']}")
+        print(f"Yaml link: {response[i]['yaml']}")
+        print(f"JSONSchema link: {response[i]['jsonSchema']}")
+        print()
+
+    response = sdm_links.get_data(entity_name='XXX')
+
+    for i in range(len(response)):
+        print(f"Repository link: {response[i]['repo']}")
+        print(f"Yaml link: {response[i]['yaml']}")
+        print(f"JSONSchema link: {response[i]['jsonSchema']}")
+        print()
+
+    sdm_links.stop()

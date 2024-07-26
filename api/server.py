@@ -134,22 +134,20 @@ async def get_json_schema(request: Request, response: Response):
         entity_type = req_info["type"]
 
         request.app.logger.debug(f'Request obtain the JSON Schema of the Entity Type: "{entity_type}"')
-        data = sdm_description_file.get_data(entity_name='WeatherObserved')
+        data = sdm_description_file.get_data(entity_name=entity_type)
 
-        request.app.logger.info(f"JSON Schema obtained successfully: {data["jsonSchema"]}")
-
-        resp = {
-            "jsonSchema": data["jsonSchema"]
-        }
+        data = [{'jsonSchema': x['jsonSchema']} for x in data]
+        request.app.logger.info(f"JSON Schema obtained successfully: {data}")
 
         response.status_code = status.HTTP_200_OK
-        return resp
+        return data
 
-    except KeyError:
-        request.app.logger.error("Missing key 'type' in the JSON payload")
+    except KeyError as e:
+        message = f"Unexpected {e=}, {type(e)=}"
+        request.app.logger.error(message)
 
         resp = {
-            "message": "Missing key 'type' in the JSON payload"
+            "message": message
         }
 
         response.status_code = status.HTTP_400_BAD_REQUEST
