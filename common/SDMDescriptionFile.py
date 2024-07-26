@@ -97,7 +97,7 @@ class SDMDescriptionFile:
 
         return response
 
-    def get_links(self, entity_name: str) -> dict:
+    def get_data(self, entity_name: str) -> dict:
         """
         Get the link to the repository and the link to the raw data of the model.yaml of the corresponding Data Model
         :param entity_name: The name of the entity to search the links in GitHub
@@ -141,7 +141,7 @@ class SDMDescriptionFile:
 
 if __name__ == '__main__':
     sdm_links = SDMDescriptionFile()
-    response = sdm_links.get_links(entity_name='WeatherObserved')
+    response = sdm_links.get_data(entity_name='WeatherObserved')
 
     print(f"Repository link: {response['repo']}")
     print(f"Yaml link: {response['yaml']}")

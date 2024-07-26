@@ -45,7 +45,7 @@ if __name__ == "__main__":
         sdm_description = SDMDescriptionFile()
 
         try:
-            response = sdm_description.get_links(entity_name='caca')
+            response = sdm_description.get_links(entity_name=entity_type)
             print(response)
             sdm_description.stop()
         except IndexError as e:

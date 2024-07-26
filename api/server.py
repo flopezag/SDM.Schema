@@ -38,11 +38,13 @@ from secure import (
 from logging import getLogger
 from pathlib import Path
 from api.custom_logging import CustomizeLogger
-from json import load, JSONDecodeError
+from json import JSONDecodeError
 from ssl import SSLContext
+from common.SDMDescriptionFile import SDMDescriptionFile
 
 initial_uptime = datetime.now()
 logger = getLogger(__name__)
+sdm_description_file = SDMDescriptionFile()
 
 
 def create_app() -> FastAPI:
@@ -112,47 +114,45 @@ def getversion(request: Request):
 
 
 @application.post("/entity", status_code=status.HTTP_200_OK)
-async def generate(request: Request, response: Response):
-    request.app.logger.info(f'POST /entity - Generating a SQL Schema')
-
-    resp = dict()
+async def get_json_schema(request: Request, response: Response):
+    request.app.logger.info(f'POST /entity - Obtaining SDM JSON Schema')
 
     try:
         req_info = await request.json()
-    except JSONDecodeError as inst:
+    except JSONDecodeError:
         request.app.logger.error("Missing JSON payload")
 
         resp = {
-            "message": "It is needed to provide a JSON object in the payload with the details of the GitHub URL to the"
-                       " Data Model model.yaml from which you want to generate the SQL Schema"
+            "message": "It is needed to provide a JSON object in the payload with the key 'type' "
+                       "and the value of a valid Entity Type"
         }
 
         response.status_code = status.HTTP_400_BAD_REQUEST
         return resp
 
-    url = req_info["url"]
-    request.app.logger.debug(f'Request generate a SQL Schema from URL "{url}"')
+    try:
+        entity_type = req_info["type"]
 
-    # check if the post request has a valid GitHub URL to the model.yaml file of a Data Model in the SDM repository
-    if check_github_url(url=url):
-        request.app.logger.debug(f'Valid GitHub URL: "{url}"')
-        sql_schema = generate_sql_schema(model_yaml=url)
-        request.app.logger.info(f'SQL Schema: \n"{sql_schema}"')
+        request.app.logger.debug(f'Request obtain the JSON Schema of the Entity Type: "{entity_type}"')
+        data = sdm_description_file.get_data(entity_name='WeatherObserved')
+
+        request.app.logger.info(f"JSON Schema obtained successfully: {data["jsonSchema"]}")
 
         resp = {
-            "message": sql_schema
+            "jsonSchema": data["jsonSchema"]
         }
 
         response.status_code = status.HTTP_200_OK
-        request.app.logger.info(f'POST /generate 200 OK')
-
         return resp
 
-    else:
-        request.app.logger.error(f'Invalid GitHub URL: "{url}"')
-        response.status_code = status.HTTP_400_BAD_REQUEST
-        resp["message"] = f"Invalid GitHub URL: {url}"
+    except KeyError:
+        request.app.logger.error("Missing key 'type' in the JSON payload")
 
+        resp = {
+            "message": "Missing key 'type' in the JSON payload"
+        }
+
+        response.status_code = status.HTTP_400_BAD_REQUEST
         return resp
 
 
@@ -169,36 +169,18 @@ def get_uptime():
     return fmt.format(d=days, h=hours, m=minutes, s=seconds)
 
 
-def get_url():
-    config_path = Path.cwd().joinpath("common/config.json")
-
-    with open(config_path) as config_file:
-        config = load(config_file)
-
-    url = f"{config['broker']}/ngsi-ld/v1/entityOperations/create"
-
-    return url
-
-
-def check_github_url(url: str) -> bool:
-    github_url_pattern = r"https://github\.com/([^/]+)/([^/]+)/blob/([^/]+)/(.+)"
-
-    return True
-
-
-def launch(app: str = "server:application", host: str = "127.0.0.1", port: int = 5500):
+def launch(app: str = "server:application", host: str = "127.0.0.1", port: int = 5600):
     ssl_context = SSLContext(ssl.PROTOCOL_TLS_SERVER)
     cert_path = Path.cwd().joinpath("common/cert.pem")
-    key_path = Path.cwd().joinpath("common/key.pem")
-    #
+    key_path = str(Path.cwd().joinpath("common/key.pem"))
+
     ssl_context.load_cert_chain(certfile=cert_path, keyfile=key_path)
-    #
+
     run(
         app=app,
         host=host,
         port=port,
         log_level="info",
-        reload=True,
         server_header=False,
         ssl_certfile=cert_path,
         ssl_keyfile=key_path

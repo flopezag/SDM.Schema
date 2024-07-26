@@ -37,7 +37,7 @@ Options:
   -h, --host HOST                  Launch the server in the corresponding host
                                    [default: 127.0.0.1]
   -p, --port PORT                  Launch the server in the corresponding port
-                                   [default: 5500]
+                                   [default: 5600]
   -H, --help                       Show this help message and exit
   -v, --version                    Show version and exit
 
@@ -64,9 +64,21 @@ def parse_cli() -> dict:
     schema = Schema(
         {
             "--help": bool,
-            "--entity_type": str,
-            "--port": Or(None, And(Use(int), lambda n: 1 < n < 65535), error="--port N, N should be integer 1 < N < 65535"),
-            "--host": Or(None, str, error="--host HOST should be a string"),
+            "--entity_type": Or(
+                None,
+                str,
+                error="--entity_type ENTITY_TYPE, Entity Type to obtain the corresponding JSON Schema"
+            ),
+            "--port": Or(
+                None,
+                And(Use(int), lambda n: 1 < n < 65535),
+                error="--port N, N should be integer 1 < N < 65535"
+            ),
+            "--host": Or(
+                None,
+                str,
+                error="--host HOST should be a string"
+            ),
             "--version": bool,
             "run": bool,
             "server": bool,
