@@ -23,8 +23,6 @@
 from cli.command import parse_cli
 from api.server import launch
 from common.SDMDescriptionFile import SDMDescriptionFile
-from os.path import join, dirname
-from logging import basicConfig, getLogger, DEBUG
 from api.custom_logging import CustomizeLogger
 
 
@@ -45,7 +43,7 @@ if __name__ == "__main__":
         sdm_description = SDMDescriptionFile()
 
         try:
-            response = sdm_description.get_links(entity_name=entity_type)
+            response = sdm_description.get_data(entity_name=entity_type)
             print(response)
             sdm_description.stop()
         except IndexError as e:

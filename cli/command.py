@@ -37,7 +37,7 @@ Options:
   -h, --host HOST                  Launch the server in the corresponding host
                                    [default: 127.0.0.1]
   -p, --port PORT                  Launch the server in the corresponding port
-                                   [default: 5600]
+                                   [default: 5700]
   -H, --help                       Show this help message and exit
   -v, --version                    Show version and exit
 
