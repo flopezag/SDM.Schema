@@ -1,0 +1,76 @@
+openapi: 3.0.0
+info:
+  title: SDM JSON Schema Retrieval Based On Entity Types
+  version: 0.1.0
+  description: FastAPI application for retrieving SDM JSON Schema based on Entity Types.
+
+paths:
+  /version:
+    get:
+      summary: Get version information
+      description: Returns version information of the service.
+      operationId: getVersion
+      responses:
+        '200':
+          description: Successful response with version information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  doc:
+                    type: string
+                  git_hash:
+                    type: string
+                  version:
+                    type: string
+                  release_date:
+                    type: string
+                  uptime:
+                    type: string
+
+  /entity:
+    post:
+      summary: Obtain SDM JSON Schema
+      description: Generates the JSON Schema for a specified Entity Type.
+      operationId: getJsonSchema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+              required:
+                - type
+      responses:
+        '200':
+          description: JSON Schema obtained successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    jsonSchema:
+                      type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
