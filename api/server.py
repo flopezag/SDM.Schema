@@ -48,7 +48,7 @@ sdm_description_file = SDMDescriptionFile()
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="SDM SQL Schema Generation", debug=False)
+    app = FastAPI(title="SDM JSON Schema Retrieval Based On Entity Types", debug=False)
 
     custom_logger = CustomizeLogger()
     customize_logger = custom_logger.get_logger()
