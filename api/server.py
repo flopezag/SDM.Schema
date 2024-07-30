@@ -136,7 +136,7 @@ async def get_json_schema(request: Request, response: Response):
         request.app.logger.debug(f'Request obtain the JSON Schema of the Entity Type: "{entity_type}"')
         data = sdm_description_file.get_data(entity_name=entity_type)
 
-        data = [{'jsonSchema': x['jsonSchema']} for x in data]
+        # data = [{'jsonSchema': x['jsonSchema']} for x in data]
         request.app.logger.info(f"JSON Schema obtained successfully: {data}")
 
         response.status_code = status.HTTP_200_OK
@@ -167,7 +167,7 @@ def get_uptime():
     return fmt.format(d=days, h=hours, m=minutes, s=seconds)
 
 
-def launch(app: str = "server:application", host: str = "127.0.0.1", port: int = 5600):
+def launch(app: str = "server:application", host: str = "127.0.0.1", port: int = 5700):
     ssl_context = SSLContext(ssl.PROTOCOL_TLS_SERVER)
 
     logging_config_path = Path.cwd().joinpath("common/config.json")
