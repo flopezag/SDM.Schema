@@ -19,8 +19,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 ##
-import ssl
-
 from fastapi import FastAPI, Request, Response, status
 from fastapi.logger import logger as fastapi_logger
 from uvicorn import run
@@ -39,7 +37,7 @@ from logging import getLogger
 from pathlib import Path
 from api.custom_logging import CustomizeLogger
 from json import load, JSONDecodeError
-from ssl import SSLContext
+from ssl import SSLContext, PROTOCOL_TLS_SERVER
 from common.SDMDescriptionFile import SDMDescriptionFile
 
 initial_uptime = datetime.now()
@@ -168,7 +166,7 @@ def get_uptime():
 
 
 def launch(app: str = "server:application", host: str = "127.0.0.1", port: int = 5700):
-    ssl_context = SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    ssl_context = SSLContext(PROTOCOL_TLS_SERVER)
 
     logging_config_path = Path.cwd().joinpath("common/config.json")
     with open(logging_config_path) as config_file:
