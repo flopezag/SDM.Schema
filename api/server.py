@@ -38,7 +38,7 @@ from secure import (
 from logging import getLogger
 from pathlib import Path
 from api.custom_logging import CustomizeLogger
-from json import JSONDecodeError
+from json import load, JSONDecodeError
 from ssl import SSLContext
 from common.SDMDescriptionFile import SDMDescriptionFile
 
@@ -169,10 +169,12 @@ def get_uptime():
 
 def launch(app: str = "server:application", host: str = "127.0.0.1", port: int = 5600):
     ssl_context = SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    cert_path = Path.cwd().joinpath("common/cert.pem")
-    key_path = str(Path.cwd().joinpath("common/key.pem"))
 
-    ssl_context.load_cert_chain(certfile=cert_path, keyfile=key_path)
+    logging_config_path = Path.cwd().joinpath("common/config.json")
+    with open(logging_config_path) as config_file:
+        config = load(config_file)
+
+    ssl_context.load_cert_chain(certfile=config["cert"], keyfile=config["key"])
 
     run(
         app=app,
@@ -180,8 +182,8 @@ def launch(app: str = "server:application", host: str = "127.0.0.1", port: int =
         port=port,
         log_level="info",
         server_header=False,
-        ssl_certfile=cert_path,
-        ssl_keyfile=key_path
+        ssl_certfile=config["cert"],
+        ssl_keyfile=config["key"]
     )
 
 
