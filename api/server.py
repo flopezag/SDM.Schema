@@ -21,6 +21,7 @@
 ##
 from fastapi import FastAPI, Request, Response, status
 from fastapi.logger import logger as fastapi_logger
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from uvicorn import run
 from datetime import datetime
 from cli.command import __version__
@@ -47,6 +48,7 @@ sdm_description_file = SDMDescriptionFile()
 
 def create_app() -> FastAPI:
     app = FastAPI(title="SDM JSON Schema Retrieval Based On Entity Types", debug=False)
+    app.add_middleware(HTTPSRedirectMiddleware)
 
     custom_logger = CustomizeLogger()
     customize_logger = custom_logger.get_logger()
@@ -78,7 +80,7 @@ async def set_secure_headers(request, call_next):
 
     referrer = ReferrerPolicy().no_referrer()
 
-    permissions_value = PermissionsPolicy().geolocation("self", "'spam.com'").vibrate()
+    permissions_value = PermissionsPolicy().geolocation("self", "'spam.com'").camera("'none'").microphone("'none'")
 
     cache_value = CacheControl().must_revalidate()
 
@@ -91,7 +93,7 @@ async def set_secure_headers(request, call_next):
         cache=cache_value,
     )
 
-    secure_headers.framework.fastapi(response)
+    await secure_headers.set_headers_async(response)
 
     return response
 
@@ -105,7 +107,7 @@ def getversion(request: Request):
         "git_hash": "nogitversion",
         "version": __version__,
         "release_date": "no released",
-        "uptime": get_uptime(),
+        "uptime": get_uptime()
     }
 
     return data
@@ -134,7 +136,6 @@ async def get_json_schema(request: Request, response: Response):
         request.app.logger.debug(f'Request obtain the JSON Schema of the Entity Type: "{entity_type}"')
         data = sdm_description_file.get_data(entity_name=entity_type)
 
-        # data = [{'jsonSchema': x['jsonSchema']} for x in data]
         request.app.logger.info(f"JSON Schema obtained successfully: {data}")
 
         response.status_code = status.HTTP_200_OK

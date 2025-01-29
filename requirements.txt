@@ -1,7 +1,7 @@
-# Python3.12 project
-loguru==0.7.2
+# Python3.13 project
+loguru==0.7.3
 requests==2.32.3
-fastapi==0.111.1
-secure==0.3.0
+fastapi==0.115.7
+secure==1.0.1
 docopt==0.6.2
 schema==0.7.7
